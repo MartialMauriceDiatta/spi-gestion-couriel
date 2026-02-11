@@ -182,10 +182,10 @@ paths:
       responses:
         '200':
           description: Réponse en chaîne qui confirme le succès de la création de couriel avec fichier joint
-        #          content:
-        #            application/json:
-        #              schema:
-        #                $ref: '#/components/schemas/CourielArriver'
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/CourielArriver'
         "500":
           description: Erreur inattendue
     put:
@@ -231,6 +231,13 @@ paths:
                 paragrapheReponse:
                   type: string
                   description: paragraphe de la reponse du couriel
+                dateSignature:
+                  type: date
+                  description: date de la signature du courriel
+                signatureHash:
+                  type: string
+                  description: signatureHash de la signature
+
                 file:
                   type: string
                   format: binary
@@ -345,133 +352,6 @@ paths:
       responses:
         '200':
           description: Confirmation sous forme de chaîne que les données relatives du couriel dont l'identifiant est "couriel_Id" ont été supprimées de la table "tb_couriel".
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /directive/{reponseId}:
-    post:
-      tags:
-        - courielArriver
-      summary: Créer une nouvelle directive
-      operationId: createDirective
-      parameters:
-        - name: reponseId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: L'ID du reponse à partir duquel la directive est créée
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DirectiveCourier'
-      responses:
-        '201':
-          description: Directive created
-        '400':
-          description: Entrée non valide
-    put:
-      tags:
-        - courielArriver
-      summary: Créer une nouvelle directive
-      operationId: updateDirective
-      parameters:
-        - name: reponseId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: L'ID du reponse à partir duquel la directive est créée
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DirectiveCourier'
-      responses:
-        '201':
-          description: Directive created
-        '400':
-          description: Entrée non valide
-  /directives/{courrierArriverId}:
-    get:
-      tags:
-        - courielArriver
-      summary: Renvoyer tous les directives d'un courrier donnee
-      description: Renvoie les champs  de tous les directives d'un courrier donnee
-      operationId: getDirectivesByCourrierArriver
-      parameters:
-        - name: courrierArriverId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: L'ID du courrier à partir duquel la directive est créée
-      responses:
-        "200":
-          description: Tableau JSON des directives des courriers donnees
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DirectiveCourier"
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /directive/{id}:
-    delete:
-      tags:
-        - courielArriver
-      summary: Supprimer une directive
-      operationId: deleteDirective
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: L'identifiant de la directive à supprimer
-      responses:
-        '204':
-          description: Directive supprimée
-        '404':
-          description: La directive n'a pas été trouvée
-    get:
-      tags:
-        - courielArriver
-      summary: Renvoyer tous les directives d'un courrier donnee
-      description: Renvoie les champs  de tous les directives d'un courrier donnee
-      operationId: getDirectivesById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: L'ID du courrier à partir duquel la directive est créée
-      responses:
-        "200":
-          description: Tableau JSON des directives des courriers donnees
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DirectiveCourier"
         "500":
           description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
           content:
@@ -718,6 +598,29 @@ paths:
               schema:
                 type: string
               example: La valeur inattendue de {err.message}.
+  /courielsDepartARepondreTerminer:
+    get:
+      tags:
+        - courielDepart
+      summary: Renvoyer tous les couriers à repondre et terminer
+      description: Renvoie les champs  de tous les couriels de Depart pour repondre de la table 'tb_couriel_Depart'
+      operationId: findCourrielsDepartARepondreTerminer
+      responses:
+        "200":
+          description: Tableau JSON des couriels d'Arriver a retournés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourielDepart"
+        "500":
+          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
+          content:
+            text/html; charset=utf-8:
+              schema:
+                type: string
+              example: La valeur inattendue de {err.message}.
   /courielDepart:
     post:
       tags:
@@ -747,6 +650,9 @@ paths:
                 objet:
                   type: string
                   description: l'objet du couriel
+                etat:
+                  type: string
+                  description: l'etat du couriel
                 numeroArChive:
                   type: string
                   format: int64
@@ -754,7 +660,17 @@ paths:
                 observations:
                   type: string
                   description: observation du couriel
+                titreReponse:
+                  type: string
+                  description: titre de la reponse du couriel
+                paragrapheReponse:
+                  type: string
+                  description: para de la reponse du couriel
                 file:
+                  type: string
+                  format: binary
+                  description: Fichier joint
+                fileForPreview:
                   type: string
                   format: binary
                   description: Fichier joint
@@ -801,7 +717,17 @@ paths:
                 observations:
                   type: string
                   description: observation du couriel
+                titreReponse:
+                  type: string
+                  description: titre de la reponse du couriel
+                paragrapheReponse:
+                  type: string
+                  description: para de la reponse du couriel
                 file:
+                  type: string
+                  format: binary
+                  description: Fichier joint
+                fileForPreview:
                   type: string
                   format: binary
                   description: Fichier joint
@@ -949,142 +875,6 @@ paths:
               schema:
                 type: string
               example: "couriel n'existe pas dans la base de données."
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /categories:
-    get:
-      tags:
-        - categorie
-      summary: Renvoyer tous les l'categories
-      description: Renvoie les champs 'id', 'nom', 'description' de tous les categories de la table 'tb_categorie'
-      operationId: getAllCategory
-      responses:
-        "200":
-          description: Tableau JSON des categories retournés
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Category"
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /categorie:
-    post:
-      tags:
-        - categorie
-      summary: Enregistrer un nouveau categorie
-      description: Ajoute les détails d'une nouvelle categorie dans la table "tb_categorie"
-      operationId: createCategory
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Category"
-        description: Objet journal créé
-        required: true
-      responses:
-        '200':
-          description: Réponse en chaîne qui confirme le succès de la création de categorie
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-    put:
-      tags:
-        - categorie
-      summary: Mettre à jour les détails d'une categorie spécifique
-      description: Met à jour les détails 'nom', 'description' pour une categorie dont l'id est 'categorie_id'
-      operationId: updateCategory
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Category'
-        description: Objet categorie mis à jour
-        required: true
-      responses:
-        '200':
-          description: Réponse en chaîne qui confirme le succès de la modification de categorie
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /categorie/{categorieId}:
-    get:
-      tags:
-        - categorie
-      summary: Renvoyer des informations relatives à une categorie spécifique
-      description: Renvoie les champs 'nom', 'description' relatifs a une categorie dont l'id est 'categorie_id'
-      operationId: getCategoryById
-      parameters:
-        - name: categorieId
-          in: path
-          description: identifiant de categorie qui doit etre retourné
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: integer
-            format: int64
-            example: 3
-      responses:
-        "200":
-          description: Un objet categorie dont l'identifiant est 'categorie_id'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-        "404":
-          description: journal avec l'ID spécifié n'a pas été trouvé dans la base de données.
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: "categorie n'existe pas dans la base de données."
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-    delete:
-      tags:
-        - categorie
-      summary: Supprimer une categorie spécifique de la base de données
-      description: Supprimez les détails de categorie dont l'identifiant est 'categorie_Id' de la table 'tb_categorie'
-      operationId: deleteCategory
-      parameters:
-        - name: categorieId
-          in: path
-          description: L'identifiant qui doit être supprimé
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: integer
-            format: int64
-            example: 1
-      responses:
-        '200':
-          description: Confirmation sous forme de chaîne que les données relatives de categorie dont l'identifiant est "categorie_Id" ont été supprimées de la table "tb_categorie".
         "500":
           description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
           content:
@@ -1360,140 +1150,6 @@ paths:
               schema:
                 type: string
               example: La valeur inattendue de {err.message}.
-  /directivesSansRelation:
-    get:
-      tags:
-        - directiveSansRelation
-      summary: Renvoyer tous les les directives
-      description: Renvoie les champs 'id', 'description' de tous les directives de la table 'tb_directive_sans_relation'
-      operationId: getAllDirectiveSansRelation
-      responses:
-        "200":
-          description: Tableau JSON des directives retournés
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Directive"
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /directiveSansRelation:
-    post:
-      tags:
-        - directiveSansRelation
-      summary: Enregistrer une nouvelle directive
-      description: Ajoutez les détails d'une nouvelle directive dans la table "tb_directive_sans_relation"
-      operationId: createDirectiveSansRelation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Directive"
-        description: Objet directive créé
-        required: true
-      responses:
-        '200':
-          description: Réponse en chaîne qui confirme le succès de la création de directive
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-    put:
-      tags:
-        - directiveSansRelation
-      summary: Mettre à jour les détails d'une directive spécifique
-      description: Met à jour les détails 'directive' pour une directive dont l'id est 'id'
-      operationId: updateDirectiveSansRelation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Directive'
-        description: Objet directive mis à jour
-        required: true
-      responses:
-        '200':
-          description: Réponse en chaîne qui confirme le succès de la modification de directive
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-  /directiveSansRelation/{directiveId}:
-    get:
-      tags:
-        - directiveSansRelation
-      summary: Renvoyer des informations relatives à une directive spécifique
-      description: Renvoie les champs 'directive' relatifs a une directive dont l'id est 'id'
-      operationId: getdirectiveByIdSansRelation
-      parameters:
-        - name: directiveId
-          in: path
-          description: identifiant de directive qui doit etre retourné
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "200":
-          description: Un objet directive dont l'identifiant est 'id'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Directive'
-        "404":
-          description: directive avec l'ID spécifié n'a pas été trouvé dans la base de données.
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: "directive n'existe pas dans la base de données."
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
-    delete:
-      tags:
-        - directiveSansRelation
-      summary: Supprimer une directive spécifique de la base de données
-      description: Supprimez les détails d'une directive dont l'identifiant est 'directive_Id' de la table 'tb_directive_sans_relation'
-      operationId: deleteDirectiveSansRelation
-      parameters:
-        - name: directiveId
-          in: path
-          description: L'identifiant qui doit être supprimé
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Confirmation sous forme de chaîne que les données relatives de directive dont l'identifiant est "id" ont été supprimées de la table "tb_directive_sans_relation".
-        "500":
-          description: Renvoie une description de l'erreur {err} qui a été rencontrée de manière inattendue
-          content:
-            text/html; charset=utf-8:
-              schema:
-                type: string
-              example: La valeur inattendue de {err.message}.
 components:
   schemas:
     CourielArriver:
@@ -1530,14 +1186,22 @@ components:
         paragrapheReponse:
           type: string
           description: paragraphe de la reponse du couriel
+        dateSignature:
+          type: string
+          description: date de la signature
+        idSignature:
+          type: integer
+          format: int64
+          description: id de la signature
+        signatureHash:
+          type: string
+          description: id de la signature
         filePdf:
           type: string
           description: Fichier joint
         fileForPreview:
           type: string
           description: Fichier joint
-        #        verifier:
-        #          type: boolean
         etat:
           type: string
         creerParId:
@@ -1580,11 +1244,20 @@ components:
         observations:
           type: string
           description: observation du couriel
+        titreReponse:
+          type: string
+          description: titre de la reponse du couriel
+        paragrapheReponse:
+          type: string
+          description: paragraphe de la reponse du couriel
         filePdf:
           type: string
           description: Fichier joint
-        #        verifier:
-        #          type: boolean
+        fileForPreview:
+          type: string
+          description: Fichier joint
+#        verifier:
+#          type: boolean
         etat:
           type: string
         creerParId:
@@ -1611,33 +1284,7 @@ components:
         directives:
           type: array
           items:
-            $ref: '#/components/schemas/DirectiveCourier'
-    DirectiveCourier:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: L'identifiant du couriel
-        description:
-          type: string
-          description: description des directives
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: L'identifiant de la categorie
-        nom:
-          type: string
-          description: nom de la categorie
-        description:
-          type: string
-          description: La description de la categorie
-        dateCreation:
-          type: string
-          description: date de creation de l'utilisateur
+            $ref: '#/components/schemas/ReponseCourier'
     Destinateur:
       type: object
       properties:
@@ -1716,16 +1363,3 @@ components:
         role:
           type: string
           description: permet de recuperer le nom du role pour l'utiliser
-    Directive:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: L'identifiant du destinateur
-        directive:
-          type: string
-          description: la directive
-        dateCreation:
-          type: string
-          description: date de creation du destinateur
